@@ -1,49 +1,57 @@
-import * as THREE from 'three'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
-import './style.css'
-import { createHighPriest } from './highPriest.js'
+import * as THREE from 'three';
+import './style.css';
+import { createRoad } from './road.js';
+import { createViewer } from './viewer.js';
 
-const canvas = document.getElementById('canvas')
+const canvas = document.getElementById('canvas');
+const fade = document.getElementById('fade');
 
-const scene = new THREE.Scene()
-scene.background = new THREE.Color('#1a1a20')
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100)
-camera.position.set(0, 0.2, 4.2)
+const viewer = createViewer(renderer);
+const road = createRoad(renderer, { onComplete: goToViewer });
+let current = road;
 
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true })
-renderer.setSize(window.innerWidth, window.innerHeight)
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-renderer.shadowMap.enabled = true
+document.getElementById('beginBtn').addEventListener('click', () => {
+  document.getElementById('intro').hidden = true;
+  road.begin();
+});
 
-const pmrem = new THREE.PMREMGenerator(renderer)
-scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture
+// The gate opens -> fade out, switch to the high priest, fade in
+function goToViewer() {
+  fade.classList.add('show');
+  setTimeout(() => {
+    road.setActive(false);
+    current = viewer;
+    viewer.setActive(true);
+    fade.classList.remove('show');
+  }, 1000);
+}
 
-scene.add(new THREE.AmbientLight(0xffffff, 0.4))
-const key = new THREE.DirectionalLight(0xffffff, 2)
-key.position.set(2, 3, 4)
-key.castShadow = true
-scene.add(key)
-
-const priest = createHighPriest({ breastplate: true, pedestal: true })
-scene.add(priest)
-
-const controls = new OrbitControls(camera, canvas)
-controls.target.set(0, -0.1, 0)
-controls.enableDamping = true
-controls.autoRotate = true
-controls.autoRotateSpeed = 1.5
+// testing shortcut: add ?viewer to the URL to jump straight to the high priest
+if (new URLSearchParams(location.search).has('viewer')) {
+  document.getElementById('intro').hidden = true;
+  road.setActive(false);
+  current = viewer;
+  viewer.setActive(true);
+}
 
 window.addEventListener('resize', () => {
-  camera.aspect = window.innerWidth / window.innerHeight
-  camera.updateProjectionMatrix()
-  renderer.setSize(window.innerWidth, window.innerHeight)
-})
+  const w = window.innerWidth, h = window.innerHeight;
+  renderer.setSize(w, h);
+  road.resize(w, h);
+  viewer.resize(w, h);
+});
 
+const clock = new THREE.Clock();
 function animate() {
-  controls.update()
-  renderer.render(scene, camera)
-  requestAnimationFrame(animate)
+  const dt = Math.min(clock.getDelta(), 0.05);
+  current.update(dt);
+  renderer.render(current.scene, current.camera);
+  requestAnimationFrame(animate);
 }
-animate()
+animate();

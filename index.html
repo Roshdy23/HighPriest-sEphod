@@ -1,13 +1,69 @@
 <!doctype html>
-<html lang="en">
+<html lang="ar" dir="rtl">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>biblicalartifacts3d</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>الأحجار الاثنا عشر</title>
   </head>
   <body>
     <canvas id="canvas"></canvas>
-    <script type="module" src="/src/main.js"></script>
 
+    <!-- المقدمة -->
+    <section id="intro" class="overlay">
+      <div class="card">
+        <h1>الأحجار الاثنا عشر</h1>
+        <p>امشِ على الطريق، واقرأ اللوحات، واجمع الأحجار الاثني عشر من صدرة رئيس الكهنة. وعندما تجمعها كلها ستنفتح البوابة.</p>
+        <ul class="controls">
+          <li><b>W A S D</b> أو الأسهم: المشي</li>
+          <li><b>اسحب</b> بالفأرة أو بالإصبع: للنظر حولك</li>
+          <li><b>Shift</b>: المشي بسرعة</li>
+        </ul>
+        <button id="beginBtn">ابدأ الرحلة</button>
+      </div>
+    </section>
+
+    <!-- واجهة الطريق -->
+    <div id="hud" hidden>
+      <div id="counter"><span id="count">٠</span> / ١٢ حجرًا</div>
+      <div id="gems"></div>
+    </div>
+    <div id="toast"></div>
+    <div id="hint"></div>
+    <div id="verse" hidden></div>
+    <div id="touch" hidden>
+      <button data-dir="fw" aria-label="للأمام">&#9650;</button>
+      <button data-dir="left" aria-label="يسارًا">&#9664;</button>
+      <button data-dir="back" aria-label="للخلف">&#9660;</button>
+      <button data-dir="right" aria-label="يمينًا">&#9654;</button>
+    </div>
+
+    <!-- واجهة رئيس الكهنة -->
+    <div id="viewerUI" hidden>
+      <div id="viewerHint">انقر أو المس أي حجر أو قطعة من الملابس لتعرف المزيد عنها. اسحب للدوران وحرّك العجلة للتكبير.</div>
+      <div id="presets">
+        <button data-view="full">كامل</button>
+        <button data-view="head">الرأس</button>
+        <button data-view="shoulders">الكتفان</button>
+        <button data-view="chest">الصدرة</button>
+        <button data-view="hem">الذيل</button>
+      </div>
+      <button id="restartBtn">امشِ على الطريق مرة أخرى</button>
+      <button id="listBtn">القائمة</button>
+      <div id="listPanel" hidden></div>
+    </div>
+    <div id="tip"></div>
+
+    <!-- النافذة المنبثقة -->
+    <div id="popup" hidden>
+      <div class="backdrop"></div>
+      <div class="panel" role="dialog" aria-modal="true">
+        <button class="close" aria-label="إغلاق">&times;</button>
+        <div id="popupBody"></div>
+      </div>
+    </div>
+
+    <div id="fade"></div>
+
+    <script type="module" src="/src/main.js"></script>
   </body>
 </html>
